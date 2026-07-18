@@ -1,4 +1,4 @@
-# The Inbox That Runs Itself
+# HERMES
 
 The Inbox That Runs Itself is a demo application for an AI-powered customer support inbox. It simulates a modern support workflow where incoming tickets are automatically classified, replies are drafted from a knowledge base, and no-reply items are summarized into a digest for the support team.
 
