@@ -77,7 +77,7 @@ export default function App() {
   const loadDigest = useCallback(async () => {
     if (!API_BASE) {
       setDigest({
-        summary: "Demo digest unavailable right now, but the inbox is still populated with sample tickets.",
+        summary: "AI reply generation is currently unavailable. The inbox is showing the demo data, but the API is not responding.",
         highlights: [],
         ticket_count: fallbackTickets.length,
       });
@@ -91,7 +91,7 @@ export default function App() {
       setDigest(data);
     } catch {
       setDigest({
-        summary: "Demo digest unavailable right now, but the inbox is still populated with sample tickets.",
+        summary: "AI reply generation is currently unavailable. The inbox is showing the demo data, but the API is not responding.",
         highlights: [],
         ticket_count: fallbackTickets.length,
       });
@@ -169,8 +169,8 @@ export default function App() {
         status: "approved",
         tag: "billing",
         priority: "medium",
-        draft_reply: "Demo fallback reply for the current ticket.",
-        final_reply: "Demo fallback reply for the current ticket.",
+        draft_reply: "AI reply generation is currently unavailable because the API is not responding.",
+        final_reply: "AI reply generation is currently unavailable because the API is not responding.",
         score: 0.92,
         reply_needed: true,
       };
@@ -209,8 +209,8 @@ export default function App() {
         status: "approved",
         tag: "access",
         priority: "high",
-        draft_reply: "Demo fallback response for the voicemail ticket.",
-        final_reply: "Demo fallback response for the voicemail ticket.",
+        draft_reply: "AI reply generation is currently unavailable because the API is not responding.",
+        final_reply: "AI reply generation is currently unavailable because the API is not responding.",
         score: 0.91,
         reply_needed: true,
       };
