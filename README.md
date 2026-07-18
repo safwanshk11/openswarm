@@ -11,10 +11,7 @@ Support teams often deal with a flood of repetitive requests, urgent blockers, a
 <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/75806350-4217-4904-9f63-8473e09d61f5" />
 
 ## Demo video
-
-https://github.com/user-attachments/assets/acfcdddd-6ba0-4cc6-b516-587d6593e8a7
-
-Note: our API key ran out during the demo.
+https://drive.google.com/file/d/1VXI5noFYu4K9RvJGCg2QFNDZBBfWNZYn/view?usp=sharing
 
 ## Screenshot
 
