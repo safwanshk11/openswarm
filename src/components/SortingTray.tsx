@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Ticket } from "../types";
 import TicketCard from "./TicketCard";
 
@@ -7,6 +8,7 @@ interface SortingTrayProps {
 }
 
 export default function SortingTray({ tickets, flashIds }: SortingTrayProps) {
+  const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
   const done = tickets.filter((t) => t.status !== "unprocessed" && t.status !== "in_progress").length;
 
   return (
@@ -19,7 +21,13 @@ export default function SortingTray({ tickets, flashIds }: SortingTrayProps) {
       </div>
       <div className="flex flex-col gap-3.5">
         {tickets.map((t) => (
-          <TicketCard key={t.id} ticket={t} flash={flashIds.has(t.id)} />
+          <TicketCard
+            key={t.id}
+            ticket={t}
+            flash={flashIds.has(t.id)}
+            isExpanded={t.id === expandedTicketId}
+            onToggle={() => setExpandedTicketId((prev) => (prev === t.id ? null : t.id))}
+          />
         ))}
       </div>
     </div>

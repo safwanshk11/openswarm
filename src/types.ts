@@ -14,6 +14,7 @@ export interface Ticket {
   reply_needed?: boolean | null;
   draft_reply?: string | null;
   final_reply?: string | null;
+  body?: string | null;
   score?: number | null;
   status: TicketStatus | string;
   [key: string]: unknown;
