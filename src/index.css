@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply m-0 bg-paper text-ink font-sans text-[15px];
+    background-image: linear-gradient(var(--tw-color-rule, #D8CBAE) 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-attachment: local;
+  }
+}
+
+@layer components {
+  /* circular logomark with dashed inner ring */
+  .logomark {
+    @apply relative flex h-10 w-10 flex-none items-center justify-center rounded-full border-2 border-ink;
+    transform: rotate(-8deg);
+  }
+  .logomark::after {
+    content: "";
+    @apply absolute inset-1 rounded-full border border-dashed border-ink;
+  }
+
+  /* ticket stub rail: dashed perforation + repeating stripe texture */
+  .stub-rail {
+    @apply flex-none w-[84px] p-3.5 flex flex-col justify-between border-r border-dashed border-rule;
+    background: repeating-linear-gradient(
+      #EDE4D0, #EDE4D0 3px, transparent 3px, transparent 7px
+    );
+  }
+
+  /* postmark stamp: dashed inner ring */
+  .postmark::before {
+    content: "";
+    @apply absolute inset-[5px] rounded-full border border-dashed;
+    border-color: currentColor;
+  }
+
+  /* digest panel: torn-paper triangular notch at top */
+  .digest-panel::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 26px solid transparent;
+    border-right: 26px solid transparent;
+    border-top: 16px solid #DED0AC;
+  }
+
+  /* trace log: faint ruled lines behind each entry */
+  .trace-log {
+    background-image: repeating-linear-gradient(#FBF8F1 0 24px, #D8CBAE 24px 25px);
+    background-position-y: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
