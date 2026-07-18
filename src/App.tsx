@@ -6,7 +6,8 @@ import TraceOverlay from "./components/TraceOverlay";
 import type { Digest, ProcessResult, Ticket, TraceAgent, TraceLine } from "./types";
 import demoTicketsData from "../tickets.json";
 
-const API_BASE = "http://127.0.0.1:8000";
+const isLocalHost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+const API_BASE = (import.meta as ImportMeta & { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || (isLocalHost ? "http://127.0.0.1:8000" : "");
 const fallbackTickets: Ticket[] = (demoTicketsData as Array<Partial<Ticket>>).map((ticket) => ({
   ...ticket,
   status: "unprocessed",
@@ -58,6 +59,11 @@ export default function App() {
   }, []);
 
   const loadTickets = useCallback(async () => {
+    if (!API_BASE) {
+      setTickets(fallbackTickets);
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/tickets`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -69,6 +75,15 @@ export default function App() {
   }, []);
 
   const loadDigest = useCallback(async () => {
+    if (!API_BASE) {
+      setDigest({
+        summary: "Demo digest unavailable right now, but the inbox is still populated with sample tickets.",
+        highlights: [],
+        ticket_count: fallbackTickets.length,
+      });
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/digest`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -148,6 +163,25 @@ export default function App() {
     setProcessDisabled(true);
     logTrace("system", `processing ${ticket.id}: "${ticket.subject}"`);
 
+    if (!API_BASE) {
+      const fallbackResult: ProcessResult = {
+        ...ticket,
+        status: "approved",
+        tag: "billing",
+        priority: "medium",
+        draft_reply: "Demo fallback reply for the current ticket.",
+        final_reply: "Demo fallback reply for the current ticket.",
+        score: 0.92,
+        reply_needed: true,
+      };
+      await revealTrace(ticket, fallbackResult);
+      await loadDigest();
+      const remaining = nextUnprocessedTicket();
+      setProcessDisabled(!remaining);
+      if (!remaining) setProcessLabel("All tickets processed");
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/process/${encodeURIComponent(ticket.id)}`, { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -166,6 +200,38 @@ export default function App() {
   const playVoicemail = useCallback(async () => {
     setVoicemailDisabled(true);
     logTrace("system", "transcribing voicemail: demo_voicemail_1…");
+
+    if (!API_BASE) {
+      const fallbackResult: ProcessResult = {
+        id: "T-VM-demo_voicemail_1",
+        subject: "Voicemail: can't access my team's shared drive",
+        customer: "Sam Whitfield",
+        status: "approved",
+        tag: "access",
+        priority: "high",
+        draft_reply: "Demo fallback response for the voicemail ticket.",
+        final_reply: "Demo fallback response for the voicemail ticket.",
+        score: 0.91,
+        reply_needed: true,
+      };
+      const placeholder: Ticket = {
+        id: fallbackResult.id,
+        subject: fallbackResult.subject,
+        customer: fallbackResult.customer,
+        status: "in_progress",
+        tag: null,
+        draft_reply: null,
+        final_reply: null,
+        score: null,
+        reply_needed: null,
+      };
+      setTickets((prev) => [...prev, placeholder]);
+      flash(placeholder.id);
+      await revealTrace(placeholder, fallbackResult);
+      await loadDigest();
+      setVoicemailDisabled(false);
+      return;
+    }
 
     try {
       const res = await fetch(`${API_BASE}/process-voicemail/demo_voicemail_1`, { method: "POST" });
@@ -201,10 +267,12 @@ export default function App() {
   useEffect(() => {
     (async () => {
       logTrace("system", "loading inbox…");
-      try {
-        await fetch(`${API_BASE}/reset`, { method: "POST" });
-      } catch {
-        // Ignore reset failures and continue loading the existing data.
+      if (API_BASE) {
+        try {
+          await fetch(`${API_BASE}/reset`, { method: "POST" });
+        } catch {
+          // Ignore reset failures and continue loading the existing data.
+        }
       }
       await loadTickets();
       await loadDigest();
