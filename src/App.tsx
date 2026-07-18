@@ -4,8 +4,13 @@ import SortingTray from "./components/SortingTray";
 import DigestPanel from "./components/DigestPanel";
 import TraceOverlay from "./components/TraceOverlay";
 import type { Digest, ProcessResult, Ticket, TraceAgent, TraceLine } from "./types";
+import demoTicketsData from "../tickets.json";
 
 const API_BASE = "http://127.0.0.1:8000";
+const fallbackTickets: Ticket[] = (demoTicketsData as Array<Partial<Ticket>>).map((ticket) => ({
+  ...ticket,
+  status: "unprocessed",
+})) as Ticket[];
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -53,15 +58,29 @@ export default function App() {
   }, []);
 
   const loadTickets = useCallback(async () => {
-    const res = await fetch(`${API_BASE}/tickets`);
-    const data: Ticket[] = await res.json();
-    setTickets(data);
+    try {
+      const res = await fetch(`${API_BASE}/tickets`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: Ticket[] = await res.json();
+      setTickets(data);
+    } catch {
+      setTickets(fallbackTickets);
+    }
   }, []);
 
   const loadDigest = useCallback(async () => {
-    const res = await fetch(`${API_BASE}/digest`);
-    const data: Digest = await res.json();
-    setDigest(data);
+    try {
+      const res = await fetch(`${API_BASE}/digest`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: Digest = await res.json();
+      setDigest(data);
+    } catch {
+      setDigest({
+        summary: "Demo digest unavailable right now, but the inbox is still populated with sample tickets.",
+        highlights: [],
+        ticket_count: fallbackTickets.length,
+      });
+    }
   }, []);
 
   const revealTrace = useCallback(
