@@ -182,6 +182,11 @@ export default function App() {
   useEffect(() => {
     (async () => {
       logTrace("system", "loading inbox…");
+      try {
+        await fetch(`${API_BASE}/reset`, { method: "POST" });
+      } catch {
+        // Ignore reset failures and continue loading the existing data.
+      }
       await loadTickets();
       await loadDigest();
       logTrace("system", "ready");

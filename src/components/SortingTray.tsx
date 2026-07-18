@@ -10,6 +10,9 @@ interface SortingTrayProps {
 export default function SortingTray({ tickets, flashIds }: SortingTrayProps) {
   const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
   const done = tickets.filter((t) => t.status !== "unprocessed" && t.status !== "in_progress").length;
+  const uniqueTickets = tickets.filter(
+    (ticket, index, all) => all.findIndex((candidate) => candidate.id === ticket.id) === index
+  );
 
   return (
     <div className="p-7 px-8 stack:p-6">
@@ -20,9 +23,9 @@ export default function SortingTray({ tickets, flashIds }: SortingTrayProps) {
         </span>
       </div>
       <div className="flex flex-col gap-3.5">
-        {tickets.map((t) => (
+        {uniqueTickets.map((t) => (
           <TicketCard
-            key={t.id}
+            key={`${t.id}-${t.status}`}
             ticket={t}
             flash={flashIds.has(t.id)}
             isExpanded={t.id === expandedTicketId}

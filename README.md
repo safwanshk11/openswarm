@@ -6,15 +6,19 @@ The Inbox That Runs Itself is a demo application for an AI-powered customer supp
 
 Support teams often deal with a flood of repetitive requests, urgent blockers, and low-priority feedback all at once. This project demonstrates how AI can help by taking care of the first-pass triage and draft generation, allowing people to focus on the issues that need real attention.
 
-## project workflow
+## Project workflow
+
 <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/75806350-4217-4904-9f63-8473e09d61f5" />
 
-
-## demo video
+## Demo video
 
 https://github.com/user-attachments/assets/acfcdddd-6ba0-4cc6-b516-587d6593e8a7
-note -- our api key ran out
 
+Note: our API key ran out during the demo.
+
+## Screenshot
+
+<img width="1710" height="956" alt="image" src="https://github.com/user-attachments/assets/948f27ab-178a-4b92-bc77-f6d77d593679" />
 
 ## What it does
 
@@ -101,10 +105,6 @@ npm run dev
 ```
 
 Then open the local Vite URL shown in the terminal.
-
-##Screenshot
-<img width="1710" height="956" alt="image" src="https://github.com/user-attachments/assets/948f27ab-178a-4b92-bc77-f6d77d593679" />
-
 
 ## How the demo works
 

@@ -21,7 +21,8 @@ app = FastAPI(title="The Inbox That Runs Itself")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -34,11 +35,18 @@ _ticket_order: list = []
 
 
 def _load_tickets():
+    _tickets_by_id.clear()
+    _ticket_order.clear()
     with open(TICKETS_PATH, "r") as f:
         raw_tickets = json.load(f)
     for t in raw_tickets:
         _tickets_by_id[t["id"]] = {**t, "status": "unprocessed"}
         _ticket_order.append(t["id"])
+
+
+def reset_tickets():
+    _load_tickets()
+    return {"status": "reset", "ticket_count": len(_ticket_order)}
 
 
 _load_tickets()
@@ -103,6 +111,12 @@ def process_voicemail(audio_label: str):
     result = process_ticket(ticket)
     _tickets_by_id[new_id] = {**ticket, **result}
     return _tickets_by_id[new_id]
+
+
+@app.post("/reset")
+def reset():
+    """Reset the in-memory ticket state back to the demo data from tickets.json."""
+    return reset_tickets()
 
 
 @app.get("/digest")
