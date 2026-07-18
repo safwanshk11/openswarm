@@ -10,6 +10,12 @@ Support teams often deal with a flood of repetitive requests, urgent blockers, a
 <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/75806350-4217-4904-9f63-8473e09d61f5" />
 
 
+## demo video
+
+https://github.com/user-attachments/assets/acfcdddd-6ba0-4cc6-b516-587d6593e8a7
+note -- our api key ran out
+
+
 ## What it does
 
 - Presents a live inbox of demo support tickets
