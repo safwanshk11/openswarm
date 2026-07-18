@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Inbox That Runs Itself</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #2a2e38;
+    --text: #e8e9ec;
+    --muted: #8b90a0;
+    --accent: #5b8cff;
+    --green: #3ecf8e;
+    --amber: #f0b429;
+    --red: #f0553c;
+    --purple: #a67cf0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+  }
+  header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    font-size: 20px;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .controls { display: flex; gap: 10px; }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    align-items: start;
+  }
+  .left { padding: 20px 28px; }
+  .right {
+    padding: 20px 24px;
+    border-left: 1px solid var(--border);
+    min-height: calc(100vh - 73px);
+  }
+  h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr.new-row { animation: flash 1.2s ease; }
+  @keyframes flash {
+    0% { background: rgba(91,140,255,0.25); }
+    100% { background: transparent; }
+  }
+  .subject { max-width: 260px; }
+  .subject .customer { color: var(--muted); font-size: 12px; }
+  .draft-cell { max-width: 320px; color: var(--text); font-size: 13px; line-height: 1.4; }
+  .placeholder { color: var(--muted); font-style: italic; }
+  .tag-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: #232733;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 100px;
+  }
+  .status .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status.unprocessed { background: #232733; color: var(--muted); }
+  .status.unprocessed .dot { background: var(--muted); }
+  .status.processing { background: rgba(91,140,255,0.15); color: var(--accent); }
+  .status.processing .dot { background: var(--accent); animation: pulse 1s infinite; }
+  .status.drafted { background: rgba(240,180,41,0.15); color: var(--amber); }
+  .status.drafted .dot { background: var(--amber); }
+  .status.approved { background: rgba(62,207,142,0.15); color: var(--green); }
+  .status.approved .dot { background: var(--green); }
+  .status.needs_revision { background: rgba(240,85,60,0.15); color: var(--red); }
+  .status.needs_revision .dot { background: var(--red); }
+  .status.held_for_digest { background: rgba(166,124,240,0.15); color: var(--purple); }
+  .status.held_for_digest .dot { background: var(--purple); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .score { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+  .panel .summary { font-size: 13px; color: var(--text); margin: 0 0 10px; line-height: 1.5; }
+  .panel ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--muted); }
+  .panel li { margin-bottom: 6px; line-height: 1.4; }
+  .panel .empty { color: var(--muted); font-size: 13px; font-style: italic; }
+  .trace-log {
+    background: #0b0d11;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    height: 340px;
+    overflow-y: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .trace-log .line { margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; }
+  .trace-log .agent-triage { color: var(--accent); }
+  .trace-log .agent-specialist { color: var(--amber); }
+  .trace-log .agent-reviewer { color: var(--green); }
+  .trace-log .agent-digest { color: var(--purple); }
+  .trace-log .agent-system { color: var(--muted); }
+  .trace-log .ts { color: var(--muted); margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>The Inbox That Runs Itself</h1>
+    <p>Triage &rarr; Specialist &rarr; Reviewer &rarr; Digest, running live</p>
+  </div>
+  <div class="controls">
+    <button class="secondary" id="voicemailBtn">Play voicemail</button>
+    <button id="processBtn">Process next ticket</button>
+  </div>
+</header>
+
+<main>
+  <div class="left">
+    <h2>Inbox</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticket ID</th>
+          <th>Subject</th>
+          <th>Tag</th>
+          <th>Draft</th>
+          <th>Score</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="ticketsBody"></tbody>
+    </table>
+  </div>
+
+  <div class="right">
+    <h2>Daily Digest</h2>
+    <div class="panel" id="digestPanel">
+      <p class="empty">Loading digest&hellip;</p>
+    </div>
+
+    <h2>Agent Trace</h2>
+    <div class="trace-log" id="traceLog"></div>
+  </div>
+</main>
+
+<script>
+const API_BASE = "http://127.0.0.1:8000";
+
+let tickets = [];        // ordered array of ticket objects as returned by /tickets
+let ticketsById = {};    // id -> ticket object (live-updated view state)
+
+const ticketsBody = document.getElementById("ticketsBody");
+const processBtn = document.getElementById("processBtn");
+const voicemailBtn = document.getElementById("voicemailBtn");
+const digestPanel = document.getElementById("digestPanel");
+const traceLog = document.getElementById("traceLog");
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function logTrace(agent, text) {
+  const time = new Date().toLocaleTimeString([], { hour12: false });
+  const line = document.createElement("div");
+  line.className = "line agent-" + agent;
+  line.innerHTML = `<span class="ts">${time}</span>[${agent}] ${text}`;
+  traceLog.appendChild(line);
+  traceLog.scrollTop = traceLog.scrollHeight;
+}
+
+function truncate(str, n) {
+  if (!str) return "";
+  return str.length > n ? str.slice(0, n - 1) + "…" : str;
+}
+
+function statusLabel(status) {
+  const map = {
+    unprocessed: "Unprocessed",
+    in_progress: "Processing…",
+    processing: "Processing…",
+    drafted: "Drafted",
+    approved: "Approved",
+    needs_revision: "Needs revision",
+    held_for_digest: "Held for digest",
+  };
+  return map[status] || status;
+}
+
+function statusClass(status) {
+  if (status === "in_progress") return "processing";
+  return status;
+}
+
+function rowId(ticketId) {
+  return "row-" + ticketId.replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
+function renderRow(ticket, opts = {}) {
+  let tr = document.getElementById(rowId(ticket.id));
+  const isNew = !tr;
+  if (!tr) {
+    tr = document.createElement("tr");
+    tr.id = rowId(ticket.id);
+    ticketsBody.appendChild(tr);
+  }
+
+  const tagHtml = ticket.tag
+    ? `<span class="tag-pill">${ticket.tag}</span>`
+    : `<span class="placeholder">&mdash;</span>`;
+
+  let draftHtml;
+  if (ticket.reply_needed === false && ticket.status === "held_for_digest") {
+    draftHtml = `<span class="placeholder">no reply needed &middot; held for digest</span>`;
+  } else if (ticket.final_reply || ticket.draft_reply) {
+    draftHtml = truncate(ticket.final_reply || ticket.draft_reply, 130);
+  } else if (ticket.status === "in_progress" || ticket.status === "transcribing") {
+    draftHtml = `<span class="placeholder">writing draft&hellip;</span>`;
+  } else {
+    draftHtml = `<span class="placeholder">&mdash;</span>`;
+  }
+
+  const scoreHtml = (ticket.score !== null && ticket.score !== undefined)
+    ? `<span class="score">${ticket.score}</span>`
+    : `<span class="placeholder">&mdash;</span>`;
+
+  tr.innerHTML = `
+    <td><code>${ticket.id}</code></td>
+    <td class="subject">${ticket.subject}<div class="customer">${ticket.customer || ""}</div></td>
+    <td>${tagHtml}</td>
+    <td class="draft-cell">${draftHtml}</td>
+    <td>${scoreHtml}</td>
+    <td><span class="status ${statusClass(ticket.status)}"><span class="dot"></span>${statusLabel(ticket.status)}</span></td>
+  `;
+
+  if (isNew || opts.flash) {
+    tr.classList.remove("new-row");
+    void tr.offsetWidth; // restart animation
+    tr.classList.add("new-row");
+  }
+}
+
+function renderAllRows() {
+  ticketsBody.innerHTML = "";
+  tickets.forEach(t => renderRow(t));
+}
+
+async function loadTickets() {
+  const res = await fetch(`${API_BASE}/tickets`);
+  tickets = await res.json();
+  ticketsById = {};
+  tickets.forEach(t => { ticketsById[t.id] = t; });
+  renderAllRows();
+}
+
+async function loadDigest() {
+  const res = await fetch(`${API_BASE}/digest`);
+  const digest = await res.json();
+  if (!digest.ticket_count) {
+    digestPanel.innerHTML = `<p class="empty">Nothing held for digest yet.</p>`;
+    return;
+  }
+  const highlights = (digest.highlights || []).map(h => `<li>${h}</li>`).join("");
+  digestPanel.innerHTML = `
+    <p class="summary">${digest.summary || ""}</p>
+    <ul>${highlights}</ul>
+  `;
+}
+
+// Renders the agent chain progressively from trace.steps, even though the
+// backend call itself is a single synchronous response. Each step is
+// revealed with a short delay so the row (and the trace log) read like a
+// live pipeline instead of a single dump.
+async function revealTrace(ticket, result) {
+  const steps = (result.trace && result.trace.steps) || [];
+
+  ticket.status = "in_progress";
+  renderRow(ticket);
+
+  for (const step of steps) {
+    await sleep(550);
+    const { agent, output } = step;
+
+    if (agent === "triage") {
+      ticket.tag = output.tag;
+      ticket.priority = output.priority;
+      ticket.reply_needed = output.reply_needed;
+      logTrace("triage", `tag=${output.tag} priority=${output.priority} reply_needed=${output.reply_needed} — ${output.reasoning || ""}`);
+      ticket.status = output.reply_needed ? "in_progress" : "held_for_digest";
+      renderRow(ticket);
+    } else if (agent === "specialist") {
+      ticket.draft_reply = output.draft_reply;
+      ticket.status = "drafted";
+      logTrace("specialist", `confidence=${output.confidence} kb_sources=${(output.kb_sources || []).join(",")}`);
+      renderRow(ticket);
+    } else if (agent === "reviewer") {
+      ticket.final_reply = output.final_reply;
+      ticket.score = output.score;
+      ticket.status = output.status;
+      logTrace("reviewer", `score=${output.score} status=${output.status} — ${output.feedback || ""}`);
+      renderRow(ticket);
+    }
+  }
+
+  // Reconcile with whatever the backend ultimately settled on.
+  ticket.status = result.status;
+  ticket.tag = result.tag;
+  ticket.priority = result.priority;
+  ticket.draft_reply = result.draft_reply;
+  ticket.final_reply = result.final_reply;
+  ticket.score = result.score;
+  renderRow(ticket, { flash: true });
+}
+
+function nextUnprocessedTicket() {
+  return tickets.find(t => t.status === "unprocessed");
+}
+
+async function processNextTicket() {
+  const ticket = nextUnprocessedTicket();
+  if (!ticket) {
+    logTrace("system", "no unprocessed tickets remaining");
+    processBtn.disabled = true;
+    processBtn.textContent = "All tickets processed";
+    return;
+  }
+
+  processBtn.disabled = true;
+  logTrace("system", `processing ${ticket.id}: "${ticket.subject}"`);
+
+  try {
+    const res = await fetch(`${API_BASE}/process/${encodeURIComponent(ticket.id)}`, { method: "POST" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const result = await res.json();
+    await revealTrace(ticket, result);
+    await loadDigest();
+  } catch (err) {
+    logTrace("system", `error processing ${ticket.id}: ${err.message}`);
+  } finally {
+    processBtn.disabled = !!nextUnprocessedTicket() ? false : true;
+    if (!nextUnprocessedTicket()) processBtn.textContent = "All tickets processed";
+  }
+}
+
+async function playVoicemail() {
+  voicemailBtn.disabled = true;
+  logTrace("system", "transcribing voicemail: demo_voicemail_1…");
+
+  try {
+    const res = await fetch(`${API_BASE}/process-voicemail/demo_voicemail_1`, { method: "POST" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const result = await res.json();
+
+    // Insert the transcribed ticket into the table immediately, before the
+    // agent chain runs, so it visibly "arrives" from the voicemail.
+    const placeholder = {
+      id: result.id,
+      subject: result.subject,
+      customer: result.customer,
+      status: "in_progress",
+      tag: null, draft_reply: null, final_reply: null, score: null,
+      reply_needed: null,
+    };
+    tickets.push(placeholder);
+    ticketsById[placeholder.id] = placeholder;
+    renderRow(placeholder, { flash: true });
+    logTrace("system", `voicemail transcribed → new ticket ${result.id}: "${result.subject}"`);
+
+    await revealTrace(placeholder, result);
+    await loadDigest();
+  } catch (err) {
+    logTrace("system", `error processing voicemail: ${err.message}`);
+  } finally {
+    voicemailBtn.disabled = false;
+  }
+}
+
+processBtn.addEventListener("click", processNextTicket);
+voicemailBtn.addEventListener("click", playVoicemail);
+
+(async function init() {
+  logTrace("system", "loading inbox…");
+  await loadTickets();
+  await loadDigest();
+  logTrace("system", "ready");
+})();
+</script>
+
+</body>
+</html>

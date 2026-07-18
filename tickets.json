@@ -1,0 +1,74 @@
+[
+  {
+    "id": "T-1001",
+    "subject": "Sync stuck at 43% for two days",
+    "customer": "Priya Nair",
+    "email": "priya.nair@example.com",
+    "channel": "email",
+    "body": "My desktop sync has been stuck at 43% since Wednesday. I've restarted the app twice and rebooted my laptop. This is blocking me from getting new files from my team. Please help ASAP.",
+    "created_at": "2026-07-17T09:12:00+05:30"
+  },
+  {
+    "id": "T-1002",
+    "subject": "Charged twice this month",
+    "customer": "Daniel Kim",
+    "email": "daniel.kim@example.com",
+    "channel": "email",
+    "body": "I just noticed two $9 charges on my card from Loomly Cloud on the same day, July 15th. I only have one account. Can you refund the duplicate charge?",
+    "created_at": "2026-07-17T10:05:00+05:30"
+  },
+  {
+    "id": "T-1003",
+    "subject": "Just wanted to say thanks",
+    "customer": "Aisha Khan",
+    "email": "aisha.khan@example.com",
+    "channel": "email",
+    "body": "Not a support request, just wanted to say the new folder sharing UI is really clean. Great work team!",
+    "created_at": "2026-07-17T11:30:00+05:30"
+  },
+  {
+    "id": "T-1004",
+    "subject": "Recipient says the share link is broken",
+    "customer": "Marco Ruiz",
+    "email": "marco.ruiz@example.com",
+    "channel": "email",
+    "body": "I shared a folder with a client last week and they're now telling me the link shows an error page. I need this fixed today, we have a deadline.",
+    "created_at": "2026-07-17T13:47:00+05:30"
+  },
+  {
+    "id": "T-1005",
+    "subject": "Feature idea: dark mode for web app",
+    "customer": "Tomasz Nowak",
+    "email": "tomasz.nowak@example.com",
+    "channel": "email",
+    "body": "Would love to see a dark mode option in the web dashboard, staring at the white background at night is rough. Not urgent, just a suggestion.",
+    "created_at": "2026-07-17T14:20:00+05:30"
+  },
+  {
+    "id": "T-1006",
+    "subject": "Webhook stopped firing after we rotated our Slack app",
+    "customer": "Elena Petrova",
+    "email": "elena.petrova@example.com",
+    "channel": "email",
+    "body": "Our Slack notifications from Loomly stopped working after we rotated credentials on our end last week. Webhook logs show nothing since then. What do we need to reconnect?",
+    "created_at": "2026-07-17T15:02:00+05:30"
+  },
+  {
+    "id": "T-1007",
+    "subject": "Locked out after losing my phone (2FA)",
+    "customer": "James O'Connor",
+    "email": "james.oconnor@example.com",
+    "channel": "email",
+    "body": "I lost my phone yesterday and can't get past the 2FA screen. I really need access to my files for a client presentation tomorrow morning. Please help me get back in.",
+    "created_at": "2026-07-17T16:40:00+05:30"
+  },
+  {
+    "id": "T-1008",
+    "subject": "Invoice needs to go to our accountant, not me",
+    "customer": "Grace Liu",
+    "email": "grace.liu@example.com",
+    "channel": "email",
+    "body": "Can you start sending our Team plan invoices to accounting@ourcompany.com instead of my personal email? Would make bookkeeping a lot easier on our end.",
+    "created_at": "2026-07-17T17:15:00+05:30"
+  }
+]
